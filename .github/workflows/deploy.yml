@@ -3,7 +3,7 @@ name: GitOps CI/CD
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build-deploy:
@@ -34,7 +34,7 @@ jobs:
           git config user.email "actions@github.com"
           git add deployment.yaml
           git commit -m "Update image tag to ${{ env.TAG }}"
-          git push origin main
+          git push origin master
 
       - name: ✅ Done
         run: echo "CI complete! ArgoCD will auto-sync soon."
