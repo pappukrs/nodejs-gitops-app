@@ -32,7 +32,7 @@ jobs:
       # 5️⃣ Update GitOps Config Repo
       - name: 🧩 Clone & Update GitOps Config Repo
         run: |
-          git clone https://github.com/pappukrs/gitops-config-repo.git gitops-config
+          git clone https://pappukrs:${{ secrets.CONFIG_REPO_PAT }}@github.com/pappukrs/gitops-config-repo.git gitops-config
           cd gitops-config
           # Update the deployment image with new tag
           sed -i'' -e "s|image: .*|image: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-gitops-app:${{ env.TAG }}|" deployment.yaml
