@@ -27,7 +27,7 @@ jobs:
 
       - name: 🧩 Clone GitOps Config Repo
         run: |
-          git clone https://${{ secrets.CONFIG_REPO_PAT }}@${{ secrets.CONFIG_REPO#https:// }} gitops-config
+          git clone https://$CONFIG_REPO_PAT@github.com/pappukrs/gitops-config-repo.git gitops-config
           cd gitops-config
           sed -i'' -e "s|image: .*|image: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-gitops-app:${{ env.TAG }}|" deployment.yaml
           git config user.name "GitHub Actions"
