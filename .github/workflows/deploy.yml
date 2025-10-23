@@ -10,31 +10,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout your app code
       - name: 🧰 Checkout app code
         uses: actions/checkout@v4
 
+      # 2️⃣ Login to DockerHub
       - name: 🐳 Login to DockerHub
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
+      # 3️⃣ Build Docker image with unique tag
       - name: 🏗️ Build Docker image
         run: |
           TAG=$(date +%s)
           echo "TAG=$TAG" >> $GITHUB_ENV
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-gitops-app:$TAG .
 
+      # 4️⃣ Push Docker image
       - name: 🚀 Push Docker image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-gitops-app:${{ env.TAG }}
 
-      - name: 🧩 Clone GitOps Config Repo
+      # 5️⃣ Update GitOps Config Repo
+      - name: 🧩 Clone & Update GitOps Config Repo
         run: |
-          git clone https://$CONFIG_REPO_PAT@github.com/pappukrs/gitops-config-repo.git gitops-config
+          git clone https://github.com/pappukrs/gitops-config-repo.git gitops-config
           cd gitops-config
+          # Update the deployment image with new tag
           sed -i'' -e "s|image: .*|image: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-gitops-app:${{ env.TAG }}|" deployment.yaml
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add deployment.yaml
           git commit -m "Update image tag to ${{ env.TAG }}"
-          git push origin master
+          # Push using PAT for authentication
+          git push https://pappukrs:${{ secrets.CONFIG_REPO_PAT }}@github.com/pappukrs/gitops-config-repo.git master
 
+      # 6️⃣ Finish
       - name: ✅ Done
         run: echo "CI complete! ArgoCD will auto-sync soon."
